@@ -25,7 +25,7 @@ import argparse
 import os
 import random
 
-from ntt_ref import (mont_mul, mont_mul_hw, Q, N, ZETAS, GAMMAS, ZETAS_MONT, GAMMAS_MONT,
+from ntt_ref import (mont_mul, mont_mul_hw, ZETAS_MONT, Q, N, ZETAS, GAMMAS, ZETAS_MONT, GAMMAS_MONT,
                      FWD_LENS, INV_LENS, ntt, intt, base_mul,
                      schoolbook_negacyclic, R_MOD_Q)
 
@@ -69,17 +69,26 @@ def dump_modular_tests(out, rng, count=2000):
 def dump_butterfly_tests(out, rng, count=2000):
     """Standalone CT and GS butterfly vectors -- no memory, no control."""
     with open(os.path.join(out, "tv_butterfly_ct.txt"), "w") as fh:
-        fh.write("# zeta a b  a_out b_out   (Cooley-Tukey / forward)\n")
+        fh.write("# z_mont z a b  a_out b_out   (Cooley-Tukey / forward)\n")
+        fh.write("# feed z_mont to the DUT: mont_mul(b, z_mont) = b*z mod q\n")
         for _ in range(count):
-            z, a, b = rng.choice(ZETAS), rng.randrange(Q), rng.randrange(Q)
+            zi = rng.randrange(1, 128)
+            z, zm = ZETAS[zi], ZETAS_MONT[zi]
+            a, b = rng.randrange(Q), rng.randrange(Q)
             t = (z * b) % Q
-            fh.write(f"{z:03x} {a:03x} {b:03x} {(a+t) % Q:03x} {(a-t) % Q:03x}\n")
+            assert mont_mul(b, zm) == t          # hardware path == math path
+            fh.write(f"{zm:03x} {z:03x} {a:03x} {b:03x} "
+                     f"{(a+t) % Q:03x} {(a-t) % Q:03x}\n")
 
     with open(os.path.join(out, "tv_butterfly_gs.txt"), "w") as fh:
-        fh.write("# zeta a b  a_out b_out   (Gentleman-Sande / inverse)\n")
+        fh.write("# z_mont z a b  a_out b_out   (Gentleman-Sande / inverse)\n")
+        fh.write("# feed z_mont to the DUT: mont_mul(b-a, z_mont) = (b-a)*z mod q\n")
         for _ in range(count):
-            z, a, b = rng.choice(ZETAS), rng.randrange(Q), rng.randrange(Q)
-            fh.write(f"{z:03x} {a:03x} {b:03x} "
+            zi = rng.randrange(1, 128)
+            z, zm = ZETAS[zi], ZETAS_MONT[zi]
+            a, b = rng.randrange(Q), rng.randrange(Q)
+            assert mont_mul((b - a) % Q, zm) == (z * (b - a)) % Q
+            fh.write(f"{zm:03x} {z:03x} {a:03x} {b:03x} "
                      f"{(a+b) % Q:03x} {(z*(b-a)) % Q:03x}\n")
 
 
