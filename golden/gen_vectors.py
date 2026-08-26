@@ -113,6 +113,23 @@ def bank_parity(j):
     return bin(j).count("1") & 1
 
 
+def dump_basemul_pair_tests(out, rng, count=2000):
+    """Per-pair vectors for base_mult.v: one degree-1 polynomial multiply."""
+    from ntt_ref import GAMMAS_MONT
+    with open(os.path.join(out, "tv_basemul.txt"), "w") as fh:
+        fh.write("# g_mont a0 a1 b0 b1  c0 c1   (mod X^2 - gamma_i)\n")
+        fh.write("# c0 = a0*b0 + a1*b1*g ; c1 = a0*b1 + a1*b0\n")
+        for _ in range(count):
+            i = rng.randrange(128)
+            g, gm = GAMMAS[i], GAMMAS_MONT[i]
+            a0, a1 = rng.randrange(Q), rng.randrange(Q)
+            b0, b1 = rng.randrange(Q), rng.randrange(Q)
+            c0 = (a0*b0 + a1*b1*g) % Q
+            c1 = (a0*b1 + a1*b0) % Q
+            fh.write(f"{gm:03x} {a0:03x} {a1:03x} {b0:03x} {b1:03x} "
+                     f"{c0:03x} {c1:03x}\n")
+
+
 def dump_address_schedule(out):
     """Every (layer, k, j, j+len) tuple the forward NTT touches, in order.
 
@@ -140,6 +157,22 @@ def dump_address_schedule(out):
                              f"  {la} {lb} {cl}"
                              f"  {pa} {pb} {cp}"
                              f"  {j >> 1:3d} {jl >> 1:3d}\n")
+    # ---- inverse (Gentleman-Sande) schedule --------------------------------
+    path_i = os.path.join(out, "addr_schedule_inv.txt")
+    with open(path_i, "w") as fh:
+        fh.write("# layer len k_zeta j jl  bank_j bank_jl conflict  row_j row_jl\n")
+        k = 127
+        for layer, length in enumerate(INV_LENS):
+            for start in range(0, N, 2 * length):
+                z_idx = k
+                k -= 1
+                for j in range(start, start + length):
+                    jl = j + length
+                    pa, pb = bank_parity(j), bank_parity(jl)
+                    fh.write(f"{layer} {length:3d} {z_idx:3d} {j:3d} {jl:3d}"
+                             f"  {pa} {pb} {int(pa == pb)}"
+                             f"  {j >> 1:3d} {jl >> 1:3d}\n")
+
     return conflicts_lsb, conflicts_par
 
 
@@ -185,6 +218,7 @@ def main():
     dump_roms(out)
     dump_modular_tests(out, rng)
     dump_butterfly_tests(out, rng)
+    dump_basemul_pair_tests(out, rng)
     conf_lsb, conf_par = dump_address_schedule(out)
     dump_polys(out, rng, args.num)
 
