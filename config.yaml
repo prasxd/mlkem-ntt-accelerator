@@ -1,0 +1,14 @@
+DESIGN_NAME: ntt_top
+VERILOG_FILES:
+  - "dir::rtl/addr_gen.v"
+  - "dir::rtl/butterfly.v"
+  - "dir::rtl/coeff_mem.v"
+  - "dir::rtl/mod_addsub.v"
+  - "dir::rtl/mont_mul.v"
+  - "dir::rtl/ntt_core.v"
+  - "dir::rtl/ntt_top.v"
+  - "dir::rtl/twiddle_rom.v"
+CLOCK_PORT: clk
+CLOCK_PERIOD: 30
+PDK: sky130A
+FP_CORE_UTIL: 40

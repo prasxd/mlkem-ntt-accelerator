@@ -1,0 +1,3 @@
+set_driving_cell buf
+set_max_fanout 10
+set_max_transition 0.75
