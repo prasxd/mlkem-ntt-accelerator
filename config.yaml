@@ -9,6 +9,6 @@ VERILOG_FILES:
   - "dir::rtl/ntt_top.v"
   - "dir::rtl/twiddle_rom.v"
 CLOCK_PORT: clk
-CLOCK_PERIOD: 30
+CLOCK_PERIOD: 20
 PDK: sky130A
 FP_CORE_UTIL: 40
