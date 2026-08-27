@@ -28,7 +28,7 @@ the SkyWater 130 nm open PDK.
 | DRC / LVS / Antenna | **Pass / Pass / Pass** |
 | Setup / hold violations | 0 / 0 |
 
-LVS: `Circuit 1 contains 19226 devices, Circuit 2 contains 19226 devices.
+LVS: `Circuit 1 contains 20748 devices, Circuit 2 contains 20748 devices.
 Circuits match uniquely.`
 
 ---
