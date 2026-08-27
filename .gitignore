@@ -1,9 +1,8 @@
+runs/
 .venv/
-__pycache__/
 build/
+__pycache__/
 *.vvp
 *.vcd
 *.fst
-runs/
-runs/
-runs/
+*.log
