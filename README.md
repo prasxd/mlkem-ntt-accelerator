@@ -3,6 +3,8 @@
 A hardware accelerator for the Number-Theoretic Transform used in ML-KEM
 (CRYSTALS-Kyber), taken from mathematical specification through RTL, verification,
 synthesis, and full physical implementation to a DRC/LVS-clean GDSII layout on
+
+![Layout](docs/img/layout.png)
 the SkyWater 130 nm open PDK.
 
 <!-- TODO: layout screenshot
